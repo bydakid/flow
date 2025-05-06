@@ -1,11 +1,26 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Dimensions,
+} from 'react-native';
 
-export default function WelcomeScreen() {
+export default function WelcomeScreen({ navigation }) {
+  const handleStart = () => {
+    navigation.navigate('Name'); // or replace with 'Login'
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Flow </Text>
-      <Text>Your daily habit & mood tracker</Text>
+      <View style={styles.centerBox}>
+        <Text style={styles.logo}>flow</Text>
+      </View>
+
+      <TouchableOpacity style={styles.button} onPress={handleStart}>
+        <Text style={styles.buttonText}>Get Started</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -13,12 +28,30 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     backgroundColor: '#fff',
+    paddingVertical: 60,
+    paddingHorizontal: 40,
   },
-  title: {
-    fontSize: 24,
+  centerBox: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logo: {
+    fontSize: 60,
     fontWeight: 'bold',
+    textTransform: 'lowercase',
+  },
+  button: {
+    backgroundColor: '#000',
+    borderRadius: 10,
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
