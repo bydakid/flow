@@ -5,6 +5,7 @@ import NameScreen from '../screens/NameScreen';
 import MoodScreen from '../screens/MoodScreen';
 import TabNavigator from './TabNavigator';
 import ProfileScreen from '../screens/ProfileScreen';
+import AddHabitScreen from '../screens/AddHabitScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export default function StackNavigator() {
       <Stack.Screen name="Mood" component={MoodScreen} />
       <Stack.Screen name="Today" component={TabNavigator} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="AddHabit" component={AddHabitScreen} />
     </Stack.Navigator>
   );
 }

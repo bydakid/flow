@@ -54,7 +54,10 @@ export default function TodayScreen({ navigation }) {
         >
           <Text style={styles.cardText}>Mood{'\n'}Check-In</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity
+          style={styles.card}
+          onPress={() => navigation.navigate('AddHabit')}
+        >
           <Text style={styles.cardText}>Add{'\n'}Habit</Text>
         </TouchableOpacity>
       </View>
