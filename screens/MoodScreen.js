@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 import {
   View,
@@ -14,7 +16,7 @@ export default function MoodScreen({ navigation }) {
   const [selectedMood, setSelectedMood] = useState(null);
   const [note, setNote] = useState('');
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (selectedMood === null) {
       Alert.alert('Please select a mood');
       return;
@@ -22,11 +24,18 @@ export default function MoodScreen({ navigation }) {
 
     const moodEntry = {
       mood: selectedMood,
-      note,
-      date: new Date().toISOString(),
+      date: format(new Date(), 'yyyy-MM-dd'),
     };
-    console.log('Mood Saved:', moodEntry);
-    navigation.navigate('Today');
+
+    try {
+      await AsyncStorage.setItem(
+        'mood:' + moodEntry.date,
+        JSON.stringify(moodEntry)
+      );
+      navigation.navigate('Today');
+    } catch (e) {
+      console.error('Error saving mood:', e);
+    }
   };
 
   return (

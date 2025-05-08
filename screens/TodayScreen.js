@@ -22,11 +22,20 @@ export default function TodayScreen({ navigation }) {
   const [moodStats, setMoodStats] = useState([0, 10, 5, 0, 85]);
 
   useEffect(() => {
+    const loadHabits = async () => {
+      const stored = await AsyncStorage.getItem('userHabits');
+      if (stored) {
+        setHabits(JSON.parse(stored).map((title) => ({ title, done: false })));
+      }
+    };
+
     const loadName = async () => {
       const storedName = await AsyncStorage.getItem('userName');
       if (storedName) setName(storedName);
     };
+
     loadName();
+    loadHabits();
   }, []);
 
   const toggleHabit = (index) => {

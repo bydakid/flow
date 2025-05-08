@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState } from 'react';
 import {
   View,
@@ -45,9 +46,13 @@ export default function AddHabitScreen({ navigation }) {
     setShowInput(false);
   };
 
-  const handleContinue = () => {
-    console.log('Selected Habits:', selected);
-    navigation.goBack(); // Replace with storage logic later
+  const handleContinue = async () => {
+    try {
+      await AsyncStorage.setItem('userHabits', JSON.stringify(selected));
+      navigation.goBack();
+    } catch (error) {
+      console.error('Error saving habits:', error);
+    }
   };
 
   return (
