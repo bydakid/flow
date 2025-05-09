@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,24 +9,54 @@ import {
   Switch,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
+import { useFocusEffect } from '@react-navigation/native';
 
 const moodIcons = ['😞', '🙁', '😐', '🙂', '😄'];
 
 export default function TodayScreen({ navigation }) {
   const [name, setName] = useState('');
-  const [habits, setHabits] = useState([
-    { title: 'Fitness', done: false },
-    { title: 'Reading', done: true },
-    { title: 'Meditation', done: false },
-  ]);
+  const [habits, setHabits] = useState([]);
+  const [moodCounts, setMoodCounts] = useState([]);
 
-  const [moodStats, setMoodStats] = useState([0, 10, 5, 0, 85]);
+  const loadTodayMood = async () => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const stored = await AsyncStorage.getItem('mood:' + today);
+    if (stored) {
+      const moodArray = JSON.parse(stored);
+      const counts = moodIcons.map((icon) => {
+        const count = moodArray.filter((m) => m === icon).length;
+        const percent = ((count / moodArray.length) * 100).toFixed(0);
+        return percent;
+      });
+      setMoodCounts(counts);
+    } else {
+      setMoodCounts(new Array(moodIcons.length).fill(0));
+    }
+  };
 
   useEffect(() => {
     const loadHabits = async () => {
       const stored = await AsyncStorage.getItem('userHabits');
       if (stored) {
-        setHabits(JSON.parse(stored).map((title) => ({ title, done: false })));
+        const loaded = JSON.parse(stored).map((title) => ({
+          title,
+          done: false,
+        }));
+        setHabits(loaded);
+
+        // Now apply checked states
+        const today = format(new Date(), 'yyyy-MM-dd');
+        const checked = await AsyncStorage.getItem(`habits:${today}`);
+        if (checked) {
+          const checkedTitles = JSON.parse(checked);
+          setHabits((prev) =>
+            prev.map((habit) => ({
+              ...habit,
+              done: checkedTitles.includes(habit.title),
+            }))
+          );
+        }
       }
     };
 
@@ -36,71 +67,105 @@ export default function TodayScreen({ navigation }) {
 
     loadName();
     loadHabits();
+    loadTodayMood();
   }, []);
 
-  const toggleHabit = (index) => {
+  useFocusEffect(
+    useCallback(() => {
+      const refreshHabits = async () => {
+        const stored = await AsyncStorage.getItem('userHabits');
+        if (stored) {
+          const loaded = JSON.parse(stored).map((title) => ({
+            title,
+            done: false,
+          }));
+          setHabits(loaded);
+        }
+      };
+      loadTodayMood();
+      refreshHabits();
+    }, [])
+  );
+
+  const toggleHabit = async (index) => {
     const updated = [...habits];
     updated[index].done = !updated[index].done;
     setHabits(updated);
+
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const checked = updated.filter((h) => h.done).map((h) => h.title);
+
+    try {
+      await AsyncStorage.setItem(`habits:${today}`, JSON.stringify(checked));
+    } catch (e) {
+      console.error('Error saving habits:', e);
+    }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Hey, {name}</Text>
-        <TouchableOpacity
-          style={styles.profileCircle}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Text style={styles.profileIcon}>👤</Text>
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Hey, {name}</Text>
+          <TouchableOpacity
+            style={styles.profileCircle}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Text style={styles.profileIcon}>👤</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.row}>
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('Mood')}
-        >
-          <Text style={styles.cardText}>Mood{'\n'}Check-In</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.card}
-          onPress={() => navigation.navigate('AddHabit')}
-        >
-          <Text style={styles.cardText}>Add{'\n'}Habit</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.row}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('Mood')}
+          >
+            <Text style={styles.cardText}>Mood{'\n'}Check-In</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('AddHabit')}
+          >
+            <Text style={styles.cardText}>Add{'\n'}Habit</Text>
+          </TouchableOpacity>
+        </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today’s Mood</Text>
-        <View style={styles.moodRow}>
-          {moodStats.map((percent, i) => (
-            <View style={styles.moodItem}>
-              <Text style={styles.moodEmoji}>{moodIcons[i]}</Text>
-              <Text>{percent}%</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Today’s Mood</Text>
+          <View style={styles.moodRow}>
+            {moodIcons.map((emoji, i) => (
+              <View key={i} style={styles.moodItem}>
+                <Text style={styles.moodEmoji}>{emoji}</Text>
+                <Text>{moodCounts[i] || 0}%</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Today’s Habit</Text>
+          {habits.map((habit, i) => (
+            <View key={i} style={styles.habitRow}>
+              <Text style={styles.habitText}>{habit.title}</Text>
+              <TouchableOpacity
+                style={[styles.circle, habit.done && styles.circleFilled]}
+                onPress={() => toggleHabit(i)}
+              />
             </View>
           ))}
         </View>
       </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Today’s Habit</Text>
-        {habits.map((habit, i) => (
-          <View key={i} style={styles.habitRow}>
-            <Text style={styles.habitText}>{habit.title}</Text>
-            <TouchableOpacity
-              style={[styles.circle, habit.done && styles.circleFilled]}
-              onPress={() => toggleHabit(i)}
-            />
-          </View>
-        ))}
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 20 },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    paddingVertical: 40,
+    paddingHorizontal: 20,
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',

@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
+import { useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,6 +28,17 @@ export default function AddHabitScreen({ navigation }) {
   const [selected, setSelected] = useState([]);
   const [showInput, setShowInput] = useState(false);
   const [newHabit, setNewHabit] = useState('');
+
+  useEffect(() => {
+    const loadSelectedHabits = async () => {
+      const stored = await AsyncStorage.getItem('userHabits');
+      if (stored) {
+        setSelected(JSON.parse(stored));
+      }
+    };
+
+    loadSelectedHabits();
+  }, []);
 
   const toggleSelect = (habit) => {
     if (selected.includes(habit)) {
@@ -56,63 +69,68 @@ export default function AddHabitScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>What’s are your habits?</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>What’s are your habits?</Text>
 
-      <View style={styles.grid}>
-        {habits.map((habit, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.habitButton,
-              selected.includes(habit) && styles.habitButtonSelected,
-            ]}
-            onPress={() => toggleSelect(habit)}
-          >
-            <Text
+        <View style={styles.grid}>
+          {habits.map((habit, index) => (
+            <TouchableOpacity
+              key={index}
               style={[
-                styles.habitText,
-                selected.includes(habit) && styles.habitTextSelected,
+                styles.habitButton,
+                selected.includes(habit) && styles.habitButtonSelected,
               ]}
+              onPress={() => toggleSelect(habit)}
             >
-              {habit}
-            </Text>
-          </TouchableOpacity>
-        ))}
+              <Text
+                style={[
+                  styles.habitText,
+                  selected.includes(habit) && styles.habitTextSelected,
+                ]}
+              >
+                {habit}
+              </Text>
+            </TouchableOpacity>
+          ))}
 
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowInput(true)}
-        >
-          <Text style={styles.plus}>＋</Text>
-        </TouchableOpacity>
-      </View>
-
-      {showInput && (
-        <View style={styles.inputRow}>
-          <TextInput
-            style={styles.input}
-            placeholder="New habit"
-            value={newHabit}
-            onChangeText={setNewHabit}
-          />
-          <TouchableOpacity style={styles.saveButton} onPress={addCustomHabit}>
-            <Text style={styles.saveButtonText}>Add</Text>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => setShowInput(true)}
+          >
+            <Text style={styles.plus}>＋</Text>
           </TouchableOpacity>
         </View>
-      )}
 
-      <TouchableOpacity style={styles.continueBtn} onPress={handleContinue}>
-        <Text style={styles.continueText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
+        {showInput && (
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.input}
+              placeholder="New habit"
+              value={newHabit}
+              onChangeText={setNewHabit}
+            />
+            <TouchableOpacity
+              style={styles.saveButton}
+              onPress={addCustomHabit}
+            >
+              <Text style={styles.saveButtonText}>Add</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <TouchableOpacity style={styles.continueBtn} onPress={handleContinue}>
+          <Text style={styles.continueText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 100,
+    paddingVertical: 40,
     paddingHorizontal: 20,
     backgroundColor: '#fff',
   },
@@ -184,7 +202,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 16,
     alignItems: 'center',
-    marginBottom: 30,
   },
   continueText: {
     color: '#fff',

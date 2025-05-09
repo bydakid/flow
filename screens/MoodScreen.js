@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { format } from 'date-fns';
 import React, { useState } from 'react';
@@ -10,7 +11,7 @@ import {
   Alert,
 } from 'react-native';
 
-const moodOptions = ['😞', '😐', '🙂', '😊', '😁'];
+const moodOptions = ['😞', '🙁', '😐', '🙂', '😄'];
 
 export default function MoodScreen({ navigation }) {
   const [selectedMood, setSelectedMood] = useState(null);
@@ -22,16 +23,21 @@ export default function MoodScreen({ navigation }) {
       return;
     }
 
-    const moodEntry = {
-      mood: selectedMood,
-      date: format(new Date(), 'yyyy-MM-dd'),
-    };
+    const todayKey = 'mood:' + format(new Date(), 'yyyy-MM-dd');
+    const moodIcon = moodOptions[selectedMood];
 
     try {
-      await AsyncStorage.setItem(
-        'mood:' + moodEntry.date,
-        JSON.stringify(moodEntry)
-      );
+      const existing = await AsyncStorage.getItem(todayKey);
+      let moodArray = [];
+
+      if (existing) {
+        const parsed = JSON.parse(existing);
+        moodArray = Array.isArray(parsed) ? parsed : [];
+      }
+
+      moodArray.push(moodIcon);
+
+      await AsyncStorage.setItem(todayKey, JSON.stringify(moodArray));
       navigation.navigate('Today');
     } catch (e) {
       console.error('Error saving mood:', e);
@@ -39,30 +45,32 @@ export default function MoodScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View>
-        <Text style={styles.title}>How are you feeling?</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <View>
+          <Text style={styles.title}>How are you feeling?</Text>
 
-        <View style={styles.moodRow}>
-          {moodOptions.map((emoji, index) => (
-            <TouchableOpacity
-              key={index}
-              style={[
-                styles.emojiBox,
-                selectedMood === index && styles.selectedEmoji,
-              ]}
-              onPress={() => setSelectedMood(index)}
-            >
-              <Text style={styles.emoji}>{emoji}</Text>
-            </TouchableOpacity>
-          ))}
+          <View style={styles.moodRow}>
+            {moodOptions.map((emoji, index) => (
+              <TouchableOpacity
+                key={index}
+                style={[
+                  styles.emojiBox,
+                  selectedMood === index && styles.selectedEmoji,
+                ]}
+                onPress={() => setSelectedMood(index)}
+              >
+                <Text style={styles.emoji}>{emoji}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
-      </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleSave}>
-        <Text style={styles.buttonText}>Save Mood</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleSave}>
+          <Text style={styles.buttonText}>Save Mood</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -70,8 +78,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
     justifyContent: 'space-between',
   },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },

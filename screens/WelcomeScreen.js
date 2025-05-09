@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React from 'react';
 import {
   View,
@@ -13,15 +14,17 @@ export default function WelcomeScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.centerBox}>
-        <Text style={styles.logo}>flow</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <View style={styles.centerBox}>
+          <Text style={styles.logo}>flow</Text>
+        </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleStart}>
-        <Text style={styles.buttonText}>Get Started</Text>
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity style={styles.button} onPress={handleStart}>
+          <Text style={styles.buttonText}>Get Started</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -30,8 +33,8 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     backgroundColor: '#fff',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
   centerBox: {
     flex: 1,

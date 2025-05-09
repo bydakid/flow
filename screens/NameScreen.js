@@ -1,3 +1,4 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import {
   View,
@@ -19,26 +20,28 @@ export default function NameScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>What is your name?</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter your name"
-        value={name}
-        onChangeText={setName}
-      />
-      <TouchableOpacity style={styles.button} onPress={handleContinue}>
-        <Text style={styles.buttonText}>Continue</Text>
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        <Text style={styles.title}>What is your name?</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter your name"
+          value={name}
+          onChangeText={setName}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleContinue}>
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingVertical: 60,
-    paddingHorizontal: 40,
+    paddingVertical: 40,
+    paddingHorizontal: 20,
   },
   title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
   input: {

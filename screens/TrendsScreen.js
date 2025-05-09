@@ -1,3 +1,7 @@
+import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { format } from 'date-fns';
+import { useEffect } from 'react';
 import React, { useState } from 'react';
 import {
   View,
@@ -11,17 +15,31 @@ import { Ionicons } from '@expo/vector-icons';
 
 const moodIcons = ['😞', '🙁', '😐', '🙂', '😄'];
 
-const dayData = [
-  { day: 'Fri', date: 2, mood: 0 },
-  { day: 'Sat', date: 3, mood: 1 },
-  { day: 'Sun', date: 4, mood: 2 },
-  { day: 'Mon', date: 5, mood: 3 },
-  { day: 'Tue', date: 6, mood: 4 },
-];
-
 export default function TrendsScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
+  const [moodCounts, setMoodCounts] = useState([]);
+  const [completedHabits, setCompletedHabits] = useState([]);
+
+  const loadDayData = async (selected) => {
+    const dateKey = format(selected, 'yyyy-MM-dd');
+
+    const storedMood = await AsyncStorage.getItem(`mood:${dateKey}`);
+    if (storedMood) {
+      const moodArray = JSON.parse(storedMood);
+      const counts = moodIcons.map((icon) => {
+        const count = moodArray.filter((m) => m === icon).length;
+        const percent = ((count / moodArray.length) * 100).toFixed(0);
+        return percent;
+      });
+      setMoodCounts(counts);
+    } else {
+      setMoodCounts(new Array(moodIcons.length).fill(0));
+    }
+
+    const storedHabits = await AsyncStorage.getItem(`habits:${dateKey}`);
+    setCompletedHabits(storedHabits ? JSON.parse(storedHabits) : []);
+  };
 
   const handleDateChange = (event, selectedDate) => {
     if (event.type === 'dismissed') {
@@ -30,84 +48,73 @@ export default function TrendsScreen({ navigation }) {
     }
 
     const currentDate = selectedDate || date;
-    setShowPicker(false); // Always close after selection
+    setShowPicker(false);
     setDate(currentDate);
+    loadDayData(currentDate);
   };
 
+  useEffect(() => {
+    loadDayData(date);
+  }, []);
+
   return (
-    <View style={styles.container}>
-      {/* Top Row */}
-      <View style={styles.topRow}>
-        <TouchableOpacity
-          style={styles.dateBtn}
-          onPress={() => setShowPicker(true)}
-        >
-          <Text style={styles.dateText}>{date.toDateString()}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.profileCircle}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Text style={styles.profileIcon}>👤</Text>
-        </TouchableOpacity>
-      </View>
-
-      {showPicker && (
-        <DateTimePicker
-          value={date}
-          mode="date"
-          display="default"
-          onChange={handleDateChange}
-        />
-      )}
-
-      {/* Calendar Row */}
-      <View style={styles.calendarRow}>
-        {dayData.map((item, index) => (
-          <View
-            key={index}
-            style={[styles.dayBox, index === 2 && styles.activeDay]}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.container}>
+        {/* Top Row */}
+        <View style={styles.topRow}>
+          <TouchableOpacity
+            style={styles.dateBtn}
+            onPress={() => setShowPicker(true)}
           >
-            <Text style={[styles.dayMood, index === 2 && styles.activeText]}>
-              {moodIcons[item.mood]}
-            </Text>
-            <Text style={[styles.dayText, index === 2 && styles.activeText]}>
-              {item.day}
-            </Text>
-            <Text style={[styles.dateNum, index === 2 && styles.activeText]}>
-              {item.date}
-            </Text>
-          </View>
-        ))}
-      </View>
+            <Text style={styles.dateText}>{date.toDateString()}</Text>
+          </TouchableOpacity>
 
-      {/* Mood Stats */}
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Today’s Mood</Text>
-        <View style={styles.moodRow}>
-          {moodIcons.map((emoji, i) => (
-            <View key={i} style={styles.moodCol}>
-              <Text style={styles.emoji}>{emoji}</Text>
-              <Text style={styles.percent}>
-                {['0%', '10%', '5%', '0%', '85%'][i]}
-              </Text>
-            </View>
-          ))}
+          <TouchableOpacity
+            style={styles.profileCircle}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Text style={styles.profileIcon}>👤</Text>
+          </TouchableOpacity>
+        </View>
+
+        {showPicker && (
+          <DateTimePicker
+            value={date}
+            mode="date"
+            display="default"
+            onChange={handleDateChange}
+          />
+        )}
+
+        {/* Mood Stats */}
+        <View style={styles.box}>
+          <Text style={styles.boxTitle}>Today’s Mood</Text>
+          <View style={styles.moodRow}>
+            {moodIcons.map((emoji, i) => (
+              <View key={i} style={styles.moodCol}>
+                <Text style={styles.emoji}>{emoji}</Text>
+                <Text style={styles.percent}>{moodCounts[i] || 0}%</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Habit Stats */}
+        <View style={styles.box}>
+          <Text style={styles.boxTitle}>Today’s Habit</Text>
+          {completedHabits.length > 0 ? (
+            completedHabits.map((habit, i) => (
+              <View key={i} style={styles.habitRow}>
+                <Text>{habit}</Text>
+                <View style={styles.circleFilled} />
+              </View>
+            ))
+          ) : (
+            <Text style={styles.habitRow}>No habits completed</Text>
+          )}
         </View>
       </View>
-
-      {/* Habit Stats */}
-      <View style={styles.box}>
-        <Text style={styles.boxTitle}>Today’s Habit</Text>
-        {['Fitness', 'Reading', 'Meditation'].map((habit, i) => (
-          <View key={i} style={styles.habitRow}>
-            <Text>{habit}</Text>
-            <View style={[styles.circle, i === 1 && styles.circleFilled]} />
-          </View>
-        ))}
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -173,6 +180,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 16,
     marginBottom: 20,
+    marginTop: 30,
   },
   boxTitle: {
     fontWeight: 'bold',
