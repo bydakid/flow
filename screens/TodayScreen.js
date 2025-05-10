@@ -45,7 +45,6 @@ export default function TodayScreen({ navigation }) {
         }));
         setHabits(loaded);
 
-        // Now apply checked states
         const today = format(new Date(), 'yyyy-MM-dd');
         const checked = await AsyncStorage.getItem(`habits:${today}`);
         if (checked) {
@@ -187,8 +186,11 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 20,
   },
-
-  row: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 20,
+  },
   card: {
     flex: 1,
     backgroundColor: '#f3f2f2',
@@ -210,12 +212,21 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginTop: 20,
   },
-  sectionTitle: { fontWeight: 'bold', fontSize: 18, marginBottom: 10 },
-
-  moodRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  moodItem: { alignItems: 'center' },
-  moodEmoji: { fontSize: 24 },
-
+  sectionTitle: {
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginBottom: 10,
+  },
+  moodRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  moodItem: {
+    alignItems: 'center',
+  },
+  moodEmoji: {
+    fontSize: 24,
+  },
   habitRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

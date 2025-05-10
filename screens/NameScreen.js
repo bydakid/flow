@@ -43,7 +43,11 @@ const styles = StyleSheet.create({
     paddingVertical: 40,
     paddingHorizontal: 20,
   },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
   input: {
     borderWidth: 1,
     borderColor: '#000',

@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TodayScreen from '../screens/TodayScreen';
 import TrendsScreen from '../screens/TrendsScreen';
-import { Ionicons } from '@expo/vector-icons'; // You can use any icon library
+import { Ionicons } from '@expo/vector-icons';
 
 const Tab = createBottomTabNavigator();
 

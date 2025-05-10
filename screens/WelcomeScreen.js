@@ -10,7 +10,7 @@ import {
 
 export default function WelcomeScreen({ navigation }) {
   const handleStart = () => {
-    navigation.navigate('Name'); // or replace with 'Login'
+    navigation.navigate('Name');
   };
 
   return (

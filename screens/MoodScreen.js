@@ -49,7 +49,6 @@ export default function MoodScreen({ navigation }) {
       <View style={styles.container}>
         <View>
           <Text style={styles.title}>How are you feeling?</Text>
-
           <View style={styles.moodRow}>
             {moodOptions.map((emoji, index) => (
               <TouchableOpacity
@@ -82,7 +81,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: 'space-between',
   },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 20 },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
   moodRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -126,5 +129,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

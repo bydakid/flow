@@ -134,7 +134,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#fff',
   },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
+  title: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',

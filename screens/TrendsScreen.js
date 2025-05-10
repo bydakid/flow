@@ -60,7 +60,6 @@ export default function TrendsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
-        {/* Top Row */}
         <View style={styles.topRow}>
           <TouchableOpacity
             style={styles.dateBtn}
@@ -86,7 +85,6 @@ export default function TrendsScreen({ navigation }) {
           />
         )}
 
-        {/* Mood Stats */}
         <View style={styles.box}>
           <Text style={styles.boxTitle}>Today’s Mood</Text>
           <View style={styles.moodRow}>
@@ -99,7 +97,6 @@ export default function TrendsScreen({ navigation }) {
           </View>
         </View>
 
-        {/* Habit Stats */}
         <View style={styles.box}>
           <Text style={styles.boxTitle}>Today’s Habit</Text>
           {completedHabits.length > 0 ? (
